@@ -1,117 +1,217 @@
+
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#171715">
+  <meta name="theme-color" content="#171513">
   <meta name="description" content="DICALO — A vida flui melhor juntos.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <title>DICALO — A vida flui melhor juntos.</title>
+
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./style.css">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
 </head>
-<body>
-  <div id="loading-screen" class="loading-screen">
-    <div class="brand-mark">D<span>.</span></div>
-    <p>A preparar o vosso espaço...</p>
-  </div>
 
-  <section id="auth-screen" class="auth-screen hidden">
-    <div class="auth-brand">
+<body>
+  <div class="app-shell">
+
+    <!-- ECRÃ DE ENTRADA -->
+    <section id="auth-screen" class="auth-screen">
       <div class="brand-mark">D<span>.</span></div>
+
       <p class="eyebrow">O VOSSO ESPAÇO PRIVADO</p>
       <h1 class="brand-name">DICALO</h1>
       <p class="brand-slogan">A vida flui melhor juntos.</p>
-    </div>
-    <div class="auth-card">
-      <p class="eyebrow">BEM-VINDOS DE VOLTA</p>
-      <h2 id="auth-title">Entrar no vosso espaço</h2>
-      <p class="muted" id="auth-description">Um só espaço para tudo o que partilham.</p>
-      <form id="auth-form">
-        <label for="auth-email">Email</label>
-        <input id="auth-email" type="email" autocomplete="email" placeholder="O teu email" required>
-        <label for="auth-password">Palavra-passe</label>
-        <input id="auth-password" type="password" autocomplete="current-password" placeholder="Mínimo de 6 caracteres" minlength="6" required>
-        <button id="auth-submit" class="button button-primary" type="submit">Entrar</button>
-      </form>
-      <button id="toggle-auth" class="text-button" type="button">Ainda não tens conta? Criar conta</button>
-      <button id="forgot-password" class="text-button" type="button">Esqueci-me da palavra-passe</button>
-      <p id="auth-message" class="feedback" role="status" aria-live="polite"></p>
-    </div>
-    <p class="footer-note">PRIVADO POR NATUREZA · FEITO PARA OS DOIS</p>
-  </section>
 
-  <section id="app-screen" class="app-screen hidden">
-    <header class="topbar">
-      <a class="mini-brand" href="#" data-nav="home" aria-label="DICALO início">
-        <span class="mini-mark">D.</span>
-        <span><strong>DICALO</strong><small class="mini-subtitle">O VOSSO ESPAÇO</small></span>
-      </a>
-      <div class="topbar-actions">
-        <span class="online-pill"><i></i> Espaço partilhado</span>
-        <button id="logout-button" class="icon-button" type="button" aria-label="Terminar sessão" title="Terminar sessão">↗</button>
+      <div class="auth-card">
+        <p class="eyebrow">BEM-VINDOS DE VOLTA</p>
+        <h2 id="auth-title">Entrar no vosso espaço</h2>
+        <p class="muted" id="auth-description">
+          Um só espaço para tudo o que partilham.
+        </p>
+
+        <form id="auth-form">
+          <label for="auth-email">Email</label>
+          <input
+            id="auth-email"
+            type="email"
+            autocomplete="email"
+            placeholder="O teu email"
+            required
+          >
+
+          <label for="auth-password">Palavra-passe</label>
+          <input
+            id="auth-password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Mínimo de 6 caracteres"
+            minlength="6"
+            required
+          >
+
+          <button id="auth-submit" class="button button-primary" type="submit">
+            Entrar
+          </button>
+        </form>
+
+        <button id="toggle-auth" class="text-button" type="button">
+          Ainda não tens conta? Criar conta
+        </button>
+
+        <button id="forgot-password" class="text-button" type="button">
+          Esqueci-me da palavra-passe
+        </button>
+
+        <p id="auth-message" class="feedback" role="status" aria-live="polite"></p>
       </div>
-    </header>
 
-    <main class="app-content">
-      <section id="home-view" class="home-view">
-        <div class="welcome-section">
-          <p class="eyebrow" id="welcome-date">O VOSSO DIA</p>
-          <h1>Olá, vocês<span class="warm-dot">.</span></h1>
-          <p class="muted">Tudo o que precisam para organizar a vida — e aproveitar o tempo juntos.</p>
+      <p class="footer-note">PRIVADO POR NATUREZA · FEITO PARA OS DOIS</p>
+    </section>
+
+    <!-- APLICAÇÃO -->
+    <section id="app-screen" class="app-screen hidden">
+      <header class="topbar">
+        <div class="mini-brand">
+          <span class="mini-mark">D.</span>
+          <div>
+            <strong>DICALO</strong>
+            <span class="mini-subtitle">O VOSSO ESPAÇO</span>
+          </div>
         </div>
 
-        <section class="hero-card">
-          <div class="hero-copy">
-            <p class="eyebrow">UMA NOTA PARA HOJE</p>
-            <h2 id="daily-message">Os pequenos planos também contam.</h2>
-            <button id="change-message" class="text-button light-text" type="button">Outra mensagem <span>↗</span></button>
-          </div>
-          <div class="hero-orbit" aria-hidden="true"><span>✳</span><i></i><b></b></div>
-          <div class="hero-foot"><span>✦</span> DICALO · O VOSSO PEQUENO UNIVERSO</div>
+        <button id="logout-button" class="icon-button" type="button"
+          aria-label="Terminar sessão" title="Terminar sessão">
+          ↗
+        </button>
+      </header>
+
+      <main>
+        <section class="welcome-section">
+          <p class="eyebrow" id="welcome-date">O VOSSO DIA</p>
+          <h1>Olá, vocês<span class="warm-dot">.</span></h1>
+          <p class="muted">A vida flui melhor juntos.</p>
         </section>
 
-        <section class="quick-stats" aria-label="Resumo">
-          <button class="stat-tile" data-view="tasks" type="button"><span class="stat-icon">✓</span><span><small>Tarefas por fazer</small><strong id="home-task-count">—</strong></span><span class="stat-arrow">↗</span></button>
-          <button class="stat-tile" data-view="shopping" type="button"><span class="stat-icon">＋</span><span><small>Compras por tratar</small><strong id="home-shopping-count">—</strong></span><span class="stat-arrow">↗</span></button>
-          <button class="stat-tile" data-view="finance" type="button"><span class="stat-icon">€</span><span><small>Despesas registadas</small><strong id="home-expense-total">0,00 €</strong></span><span class="stat-arrow">↗</span></button>
+        <section class="highlight-card">
+          <div>
+            <p class="eyebrow">UMA NOTA PARA HOJE</p>
+            <h2 id="daily-message">Os pequenos planos também contam.</h2>
+            <button id="change-message" class="text-button light-text" type="button">
+              Mudar mensagem ↗
+            </button>
+          </div>
+          <div class="highlight-symbol">✳</div>
         </section>
 
         <section class="section-block">
-          <div class="section-heading"><div><p class="eyebrow">O VOSSO ESPAÇO</p><h2>Escolham por onde começar</h2></div><span class="section-note">6 áreas</span></div>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">TUDO NO MESMO LUGAR</p>
+              <h2>O vosso espaço</h2>
+            </div>
+          </div>
+
           <div class="feature-grid">
-            <button class="feature-card" data-view="shopping" type="button"><span class="feature-icon">＋</span><strong>Compras</strong><span>O que falta em casa</span><b class="card-arrow">↗</b></button>
-            <button class="feature-card" data-view="finance" type="button"><span class="feature-icon">€</span><strong>Finanças</strong><span>Despesas e objetivos</span><b class="card-arrow">↗</b></button>
-            <button class="feature-card" data-view="gallery" type="button"><span class="feature-icon">▧</span><strong>Memórias</strong><span>Fotos e momentos</span><b class="card-arrow">↗</b></button>
-            <button class="feature-card" data-view="tasks" type="button"><span class="feature-icon">✓</span><strong>Tarefas</strong><span>Planos para concretizar</span><b class="card-arrow">↗</b></button>
-            <button class="feature-card" data-view="notes" type="button"><span class="feature-icon">✎</span><strong>Mensagens</strong><span>Recados e ideias</span><b class="card-arrow">↗</b></button>
-            <button class="feature-card" data-view="games" type="button"><span class="feature-icon">✳</span><strong>Diversão</strong><span>Jogos e desafios a dois</span><b class="card-arrow">↗</b></button>
+            <button class="feature-card" data-view="shopping" type="button">
+              <span class="feature-icon">↗</span>
+              <strong>Compras</strong>
+              <span>Listas partilhadas</span>
+            </button>
+
+            <button class="feature-card" data-view="finance" type="button">
+              <span class="feature-icon">€</span>
+              <strong>Finanças</strong>
+              <span>Despesas e metas</span>
+            </button>
+
+            <button class="feature-card" data-view="gallery" type="button">
+              <span class="feature-icon">▧</span>
+              <strong>Galeria</strong>
+              <span>Os vossos momentos</span>
+            </button>
+
+            <button class="feature-card" data-view="tasks" type="button">
+              <span class="feature-icon">✓</span>
+              <strong>Tarefas</strong>
+              <span>Organizar o dia</span>
+            </button>
+
+            <button class="feature-card" data-view="notes" type="button">
+              <span class="feature-icon">✎</span>
+              <strong>Mensagens</strong>
+              <span>Notas e ideias</span>
+            </button>
+
+            <button class="feature-card" data-view="games" type="button">
+              <span class="feature-icon">♧</span>
+              <strong>Jogos</strong>
+              <span>Desafios a dois</span>
+            </button>
           </div>
         </section>
 
-        <section class="section-block ideas-section">
-          <div class="section-heading"><div><p class="eyebrow">GUARDEM PARA MAIS TARDE</p><h2>Pequenas ideias</h2></div><button class="text-button" data-view="tasks" type="button">Ver tudo ↗</button></div>
-          <div class="idea-banner"><span class="idea-symbol">✦</span><div><strong>Uma coisa nova para fazer juntos</strong><p>Escolham um sítio onde nunca foram e planeiem uma pequena visita.</p></div><button class="round-arrow" data-view="games" type="button" aria-label="Abrir ideias">↗</button></div>
+        <!-- CONTEÚDO DAS FUNCIONALIDADES -->
+        <section id="feature-view" class="feature-view hidden">
+          <button id="back-home" class="text-button" type="button">
+            ← Voltar ao início
+          </button>
+          <div id="feature-content"></div>
         </section>
-      </section>
 
-      <section id="feature-view" class="feature-view hidden">
-        <button id="back-home" class="back-link" type="button">← <span>Voltar ao início</span></button>
-        <div id="feature-content"></div>
-      </section>
-    </main>
+        <section class="section-block activity-block">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">PARA NÃO ESQUECER</p>
+              <h2>Pequenas ideias</h2>
+            </div>
+          </div>
 
-    <nav class="bottom-nav" aria-label="Navegação principal">
-      <button class="nav-item active" data-nav="home" type="button"><span>⌂</span><small>Início</small></button>
-      <button class="nav-item" data-nav="shopping" type="button"><span>＋</span><small>Compras</small></button>
-      <button class="nav-item" data-nav="tasks" type="button"><span>✓</span><small>Organizar</small></button>
-      <button class="nav-item" data-nav="gallery" type="button"><span>▧</span><small>Memórias</small></button>
-      <button class="nav-item" data-nav="games" type="button"><span>✳</span><small>Diversão</small></button>
-    </nav>
-  </section>
-  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+          <div class="idea-card">
+            <span class="idea-icon">✳</span>
+            <div>
+              <strong>Caixa de ideias</strong>
+              <p class="muted">Guardem aqui planos, lugares e coisas que querem fazer.</p>
+            </div>
+          </div>
+
+          <div class="idea-card">
+            <span class="idea-icon">⌁</span>
+            <div>
+              <strong>Cápsula do tempo</strong>
+              <p class="muted">Escrevam algo para abrir numa data futura.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Navegação principal">
+        <button class="nav-item active" data-nav="home" type="button">
+          <span>⌂</span><small>Início</small>
+        </button>
+        <button class="nav-item" data-nav="shopping" type="button">
+          <span>＋</span><small>Compras</small>
+        </button>
+        <button class="nav-item" data-nav="finance" type="button">
+          <span>€</span><small>Dinheiro</small>
+        </button>
+        <button class="nav-item" data-nav="gallery" type="button">
+          <span>▧</span><small>Galeria</small>
+        </button>
+      </nav>
+    </section>
+
+    <div id="loading-screen" class="loading-screen">
+      <div class="brand-mark">D<span>.</span></div>
+      <p>A preparar o vosso espaço...</p>
+    </div>
+
+  </div>
+
   <script type="module" src="./app.js"></script>
 </body>
 </html>

@@ -353,17 +353,265 @@ function renderFinance() {
   listPanel.append(list);root.append(listPanel);
   form.addEventListener("submit",async e=>{e.preventDefault();const value=Number(amount.value);if(!title.value.trim()||!Number.isFinite(value)||value<=0)return;submit.disabled=true;try{await push(ref(db,paths.expenses),{title:title.value.trim(),amount:value,payer:payer.value,uid:currentUser.uid,createdAt:Date.now()});title.value="";amount.value="";setFeedback(feedback,"Despesa registada.","success");}catch(error){console.error(error);setFeedback(feedback,"Não foi possível guardar a despesa.","error");}finally{submit.disabled=false;}});
 }
+
 function renderMessages() {
-  const root=$("#feature-content");root.replaceChildren(makeHeader("CONVERSA · RECADO", "As vossas mensagens", "Deixem recados, ideias ou uma pequena mensagem para o outro."));
-  const panel=makePanel("Escrever mensagem");const form=document.createElement("form");form.className="item-list";
-  const input=document.createElement("textarea");input.className="field field-area";input.placeholder="Escreve aqui...";input.maxLength=500;input.required=true;
-  const submit=makeButton("Enviar mensagem ↗");submit.type="submit";const feedback=safeText("p","","feedback");form.append(input,submit,feedback);panel.append(form);root.append(panel);
-  const listPanel=makePanel("Conversa partilhada");const list=document.createElement("div");list.className="message-list";listPanel.append(list);root.append(listPanel);
-  const entries=Object.entries(currentMessages).filter(([,m])=>m&&typeof m.text==="string").sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
-  if(!entries.length)list.append(makeEmpty("✎","Ainda não há mensagens","Enviem a primeira mensagem deste espaço."));
-  entries.forEach(([key,m])=>{const card=document.createElement("article");card.className="message-card";const top=document.createElement("div");top.className="message-card-top";top.append(safeText("span",m.uid===currentUser.uid?"Tu":"Diana / Gonçalo"),safeText("time",formatDate(m.createdAt,true)));card.append(top,safeText("p",m.text));if(m.uid===currentUser.uid)addDeleteButton(card,"esta mensagem",()=>remove(ref(db,`${paths.messages}/${key}`)));list.append(card);});
-  form.addEventListener("submit",async e=>{e.preventDefault();const text=input.value.trim();if(!text)return;submit.disabled=true;try{await push(ref(db,paths.messages),{text,uid:currentUser.uid,createdAt:Date.now()});input.value="";setFeedback(feedback,"Mensagem enviada e sincronizada.","success");}catch(error){console.error(error);setFeedback(feedback,"Não foi possível enviar. Confirma as regras da Firebase.","error");}finally{submit.disabled=false;}});
+  const root = $("#feature-content");
+
+  root.replaceChildren(
+    makeHeader(
+      "CONVERSA · DICALO",
+      "O vosso chat",
+      "Recados, respostas, emojis e pequenas conversas do dia a dia."
+    )
+  );
+
+  let replyTarget = null;
+
+  const panel = makePanel("Escrever mensagem");
+  const form = document.createElement("form");
+  form.className = "item-list";
+
+  const replyPreview = document.createElement("div");
+  replyPreview.className = "chat-reply-preview";
+  replyPreview.hidden = true;
+
+  const replyText = document.createElement("p");
+  replyText.className = "chat-reply-text";
+
+  const cancelReply = makeButton("Cancelar resposta", "text-button", () => {
+    replyTarget = null;
+    replyPreview.hidden = true;
+  });
+  cancelReply.type = "button";
+
+  replyPreview.append(replyText, cancelReply);
+
+  const input = document.createElement("textarea");
+  input.className = "field field-area";
+  input.placeholder = "Escreve uma mensagem...";
+  input.maxLength = 500;
+  input.required = true;
+  input.rows = 3;
+
+  const submit = makeButton("Enviar mensagem ↗");
+  submit.type = "submit";
+
+  const feedback = safeText("p", "", "feedback");
+
+  form.append(replyPreview, input, submit, feedback);
+  panel.append(form);
+  root.append(panel);
+
+  const listPanel = makePanel("A vossa conversa");
+  const list = document.createElement("div");
+  list.className = "message-list";
+  listPanel.append(list);
+  root.append(listPanel);
+
+  const emojis = ["❤️", "😂", "😍", "🥹", "👍"];
+
+  const entries = Object.entries(currentMessages || {})
+    .filter(([, message]) =>
+      message && typeof message.text === "string"
+    )
+    .sort((a, b) =>
+      (Number(a[1].createdAt) || 0) -
+      (Number(b[1].createdAt) || 0)
+    );
+
+  if (!entries.length) {
+    list.append(
+      makeEmpty(
+        "✉",
+        "A conversa começa aqui",
+        "Enviem a primeira mensagem um ao outro."
+      )
+    );
+  }
+
+  entries.forEach(([key, message]) => {
+    const card = document.createElement("article");
+    const ownMessage = message.uid === currentUser.uid;
+    card.className = `message-card ${ownMessage ? "message-own" : "message-other"}`;
+
+    const top = document.createElement("div");
+    top.className = "message-card-top";
+
+    const author = safeText(
+      "span",
+      ownMessage ? "Tu" : "Gonçalo / Diana",
+      "message-author"
+    );
+
+    const time = safeText(
+      "time",
+      formatDate(message.createdAt, true),
+      "message-time"
+    );
+
+    top.append(author, time);
+    card.append(top);
+
+    // Pré-visualização da mensagem a que esta responde.
+    if (message.replyTo && typeof message.replyTo.text === "string") {
+      const quote = document.createElement("div");
+      quote.className = "chat-quoted-message";
+
+      quote.append(
+        safeText(
+          "small",
+          message.replyTo.uid === currentUser.uid
+            ? "Tu"
+            : "Mensagem anterior",
+          "chat-quote-author"
+        ),
+        safeText("p", message.replyTo.text, "chat-quote-text")
+      );
+
+      card.append(quote);
+    }
+
+    const body = safeText("p", message.text, "message-body");
+    card.append(body);
+
+    // Botão para responder a uma mensagem específica.
+    const actions = document.createElement("div");
+    actions.className = "chat-message-actions";
+
+    const replyButton = makeButton("↩ Responder", "chat-action-button", () => {
+      replyTarget = {
+        key,
+        text: message.text,
+        uid: message.uid
+      };
+
+      replyText.textContent =
+        `A responder a ${ownMessage ? "ti" : "esta mensagem"}: ${message.text}`;
+
+      replyPreview.hidden = false;
+      input.focus();
+      form.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    replyButton.type = "button";
+    actions.append(replyButton);
+
+    // Reações sincronizadas: cada utilizador tem uma reação por mensagem.
+    const reactions = message.reactions || {};
+    const reactionBar = document.createElement("div");
+    reactionBar.className = "chat-reactions";
+
+    emojis.forEach(emoji => {
+      const count = Object.values(reactions)
+        .filter(value => value === emoji).length;
+
+      const selected = reactions[currentUser.uid] === emoji;
+
+      const reactionButton = makeButton(
+        count ? `${emoji} ${count}` : emoji,
+        `chat-reaction-button ${selected ? "selected" : ""}`,
+        async () => {
+          reactionButton.disabled = true;
+
+          try {
+            const reactionRef = ref(
+              db,
+              `${paths.messages}/${key}/reactions/${currentUser.uid}`
+            );
+
+            if (reactions[currentUser.uid] === emoji) {
+              await remove(reactionRef);
+            } else {
+              await set(reactionRef, emoji);
+            }
+          } catch (error) {
+            console.error("Erro ao reagir à mensagem:", error);
+            toast("Não foi possível guardar a reação.");
+          } finally {
+            reactionButton.disabled = false;
+          }
+        }
+      );
+
+      reactionButton.type = "button";
+      reactionButton.setAttribute(
+        "aria-label",
+        `Reagir com ${emoji}`
+      );
+
+      reactionBar.append(reactionButton);
+    });
+
+    actions.append(reactionBar);
+    card.append(actions);
+
+    if (ownMessage) {
+      addDeleteButton(
+        card,
+        "esta mensagem",
+        async () => {
+          try {
+            await remove(ref(db, `${paths.messages}/${key}`));
+          } catch (error) {
+            console.error(error);
+            toast("Não foi possível apagar a mensagem.");
+          }
+        }
+      );
+    }
+
+    list.append(card);
+  });
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const text = input.value.trim();
+    if (!text) return;
+
+    submit.disabled = true;
+
+    const newMessage = {
+      text,
+      uid: currentUser.uid,
+      createdAt: Date.now()
+    };
+
+    if (replyTarget) {
+      newMessage.replyTo = {
+        key: replyTarget.key,
+        text: replyTarget.text,
+        uid: replyTarget.uid
+      };
+    }
+
+    try {
+      await push(ref(db, paths.messages), newMessage);
+
+      input.value = "";
+      replyTarget = null;
+      replyPreview.hidden = true;
+
+      setFeedback(
+        feedback,
+        "Mensagem enviada e partilhada!",
+        "success"
+      );
+    } catch (error) {
+      console.error("Erro ao enviar mensagem:", error);
+
+      setFeedback(
+        feedback,
+        "Não foi possível enviar. Verifica as permissões do Firebase.",
+        "error"
+      );
+    } finally {
+      submit.disabled = false;
+      input.focus();
+    }
+  });
 }
+
 function readGalleryLocal() {
   try { galleryItems = JSON.parse(localStorage.getItem("dicalo_gallery_local_v1") || "[]"); }
   catch { galleryItems = []; }
