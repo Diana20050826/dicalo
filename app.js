@@ -161,14 +161,29 @@ function subscribe(path, callback) {
     toast("Não foi possível sincronizar. Confirma as regras da Firebase.");
   });
 }
+
+
+
 function updateHomeStats() {
-  const openTasks = Object.values(currentTasks).filter(x => x && x.done !== true).length;
-  const openShopping = Object.values(currentItems).filter(x => x && x.done !== true).length;
-  const total = Object.values(currentExpenses).reduce((sum, x) => sum + (Number(x?.amount) || 0), 0);
-  $("#home-task-count").textContent = String(openTasks);
-  $("#home-shopping-count").textContent = String(openShopping);
-  $("#home-expense-total").textContent = formatMoney(total);
+  const openTasks = Object.values(currentTasks || {})
+    .filter(x => x && x.done !== true).length;
+
+  const openShopping = Object.values(currentItems || {})
+    .filter(x => x && x.done !== true).length;
+
+  const total = Object.values(currentExpenses || {})
+    .reduce((sum, x) => sum + (Number(x?.amount) || 0), 0);
+
+  const taskCount = $("#home-task-count");
+  const shoppingCount = $("#home-shopping-count");
+  const expenseTotal = $("#home-expense-total");
+
+  if (taskCount) taskCount.textContent = String(openTasks);
+  if (shoppingCount) shoppingCount.textContent = String(openShopping);
+  if (expenseTotal) expenseTotal.textContent = formatMoney(total);
 }
+
+
 function startSharedListeners() {
   stopSharedListeners();
   const stops = [
@@ -236,29 +251,49 @@ $("#logout-button")?.addEventListener("click", async () => {
 function setActiveNav(view) {
   $$(".nav-item").forEach(button => button.classList.toggle("active", button.dataset.nav === view || (view === "finance" && button.dataset.nav === "tasks" && false)));
 }
+
 function openView(view) {
   activeView = view;
+
   const home = $("#home-view");
   const feature = $("#feature-view");
+  const content = $("#feature-content");
+
+  if (!home || !feature || !content) {
+    console.error("DICALO: falta um elemento HTML necessário.", {
+      homeView: !!home,
+      featureView: !!feature,
+      featureContent: !!content
+    });
+    return;
+  }
+
   if (view === "home") {
     home.classList.remove("hidden");
     feature.classList.add("hidden");
   } else {
     home.classList.add("hidden");
     feature.classList.remove("hidden");
-    const content = $("#feature-content");
     content.replaceChildren();
+
     if (view === "shopping") renderShopping();
     else if (view === "finance") renderFinance();
     else if (view === "gallery") renderGallery();
     else if (view === "tasks") renderTasks();
     else if (view === "notes") renderMessages();
     else if (view === "games") renderGames();
-    else { activeView = "home"; home.classList.remove("hidden"); feature.classList.add("hidden"); }
+    else {
+      activeView = "home";
+      home.classList.remove("hidden");
+      feature.classList.add("hidden");
+    }
   }
+
   setActiveNav(activeView);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
+
 $$("[data-view]").forEach(button => button.addEventListener("click", () => openView(button.dataset.view)));
 $$("[data-nav]").forEach(button => button.addEventListener("click", () => openView(button.dataset.nav)));
 $("#back-home")?.addEventListener("click", () => openView("home"));
