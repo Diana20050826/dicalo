@@ -1,0 +1,22 @@
+
+{
+  "id": "./",
+  "name": "DICALO — A vida flui melhor juntos",
+  "short_name": "DICALO",
+  "description": "O vosso espaço partilhado para organizar a vida, os planos e os momentos.",
+  "lang": "pt-PT",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#171715",
+  "theme_color": "#171715",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
